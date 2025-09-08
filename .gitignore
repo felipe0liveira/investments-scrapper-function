@@ -9,3 +9,10 @@ wheels/
 # Virtual environments
 .venv
 data/
+.env
+
+# Sensitive data
+credentials.json
+
+# Logging
+*.log
