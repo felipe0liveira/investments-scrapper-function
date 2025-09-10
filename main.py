@@ -1,31 +1,21 @@
-import logging
+import uvicorn
+from fastapi import FastAPI
 from src.core.settings import Settings
-from src.scrapper import Scrapper
-from src.analizer import analize
-from src.storage import Storage
+from src.usecases.search import SearchUseCase
+
+app = FastAPI(title="Investment Scrapper API", version="1.0.0")
+
+Settings()
+
+@app.get("/")
+async def root():
+    return {"message": "Investment Scrapper API is running"}
 
 
-def main():
-    Settings()
-
-    logger = logging.getLogger(__name__)
-    logger.info("Starting web scraping.")
-    
-    scrapper = Scrapper(headless=False)
-    investments_list = scrapper.execute()
-
-    if len(investments_list) == 0:
-        logger.warning("No records found.")
-        return
-    
-    logger.info(f"Number of records on website table: {len(investments_list)}")
-
-    db_records = analize(investments_list)
-    storage = Storage()
-    storage.execute(db_records)
-
-    logger.info(f"{len(db_records)} records sent to Firestore.")
-
+@app.post("/search")
+async def search():
+    usecase = SearchUseCase(query="investment")
+    return usecase.execute()
 
 if __name__ == "__main__":
-    main()
+    uvicorn.run(app, host="0.0.0.0", port=8000)
