@@ -11,7 +11,7 @@ class Scrapper:
         self.logger = logging.getLogger(__name__)
         self.headless = headless
 
-    def extract_table_data(self, html):
+    def extract_table_data(self, html) -> list[dict]:
         """Extract data from the #rentabilidadeTable and return a list of dictionaries"""
         soup = BeautifulSoup(html, "html.parser")
         table = soup.find("table", {"id": "rentabilidadeTable"})
@@ -89,7 +89,7 @@ class Scrapper:
             self.logger.error(f"Error fetching page HTML: {e}")
             return None
 
-    def execute(self):
+    def execute(self) -> list[dict]:
         try:
             html = self.get_page_html()
 
@@ -108,21 +108,8 @@ class Scrapper:
             if len(table_data) > 3:
                 self.logger.info(f"... and {len(table_data) - 3} more records")
 
-            # Create output directory if it doesn't exist
-            data_dir = "./data"
-            os.makedirs(data_dir, exist_ok=True)
-
-            # Generate timestamp for the filename
-            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-            filename = os.path.join(data_dir, f"data-{timestamp}.json")
-
-            # Save the data to a JSON file
-            with open(filename, "w", encoding="utf-8") as f:
-                json.dump(table_data, f, ensure_ascii=False, indent=2)
-
         except Exception as e:
             self.logger.error(f"Error during scraping: {e}")
-            filename = None
             table_data = []
 
-        return filename, len(table_data)
+        return table_data

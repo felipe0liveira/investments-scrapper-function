@@ -10,17 +10,17 @@ def main():
 
     logger = logging.getLogger(__name__)
     logger.info("Starting web scraping.")
+    
     scrapper = Scrapper(headless=False)
-    filename, length = scrapper.execute()
+    investments_list = scrapper.execute()
 
-    if length == 0:
+    if len(investments_list) == 0:
         logger.warning("No records found.")
         return
+    
+    logger.info(f"Number of records on website table: {len(investments_list)}")
 
-    logger.info(f"File saved: {filename}")
-    logger.info(f"Number of records: {length}")
-
-    db_records = analize(filename)
+    db_records = analize(investments_list)
     storage = Storage()
     storage.execute(db_records)
 
